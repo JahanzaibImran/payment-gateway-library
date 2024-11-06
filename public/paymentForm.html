@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payment Form</title>
+  <style>
+    /* Center the form */
+    body, html {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f4f4f9;
+    }
+    
+    /* Form Styling */
+    #paymentForm {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      color: #555;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #28a745;
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .error {
+      color: red;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <form id="paymentForm" action="/api/process" method="POST" onsubmit="return validateForm()">
+    <h2>Order Section</h2>
+    <label>Amount: <input type="text" name="amount" required></label>
+    
+    <label>Currency:
+      <select name="currency" required>
+        <option value="USD">USD</option>
+        <option value="EUR">EUR</option>
+        <option value="THB">THB</option>
+        <option value="HKD">HKD</option>
+        <option value="SGD">SGD</option>
+        <option value="AUD">AUD</option>
+      </select>
+    </label>
+    
+    <label>Customer Full Name: <input type="text" name="customerName" required></label>
+
+    <h2>Payment Section</h2>
+    <label>Credit Card Holder Name: <input type="text" name="creditCard[holderName]" required></label>
+    <label>Credit Card Number: <input type="text" name="creditCard[number]" maxlength="16" required></label>
+    <label>Expiration Month: <input type="text" name="creditCard[expirationMonth]" maxlength="2" required></label>
+    <label>Expiration Year: <input type="text" name="creditCard[expirationYear]" maxlength="4" required></label>
+    <label>CVV: <input type="text" name="creditCard[cvv]" maxlength="3" required></label>
+
+    <button type="submit">Submit Payment</button>
+    <div class="error" id="error"></div>
+  </form>
+
+  <script>
+    // JavaScript Validation
+    function validateForm() {
+      const cardNumber = document.querySelector('input[name="creditCard[number]"]').value;
+      const expirationMonth = document.querySelector('input[name="creditCard[expirationMonth]"]').value;
+      const expirationYear = document.querySelector('input[name="creditCard[expirationYear]"]').value;
+      const cvv = document.querySelector('input[name="creditCard[cvv]"]').value;
+      const errorDiv = document.getElementById("error");
+      
+      errorDiv.innerHTML = "";  // Clear previous errors
+
+      // Validate card number length
+      if (cardNumber.length !== 16 || !/^\d{16}$/.test(cardNumber)) {
+        errorDiv.innerHTML = "Credit Card Number must be 16 digits.";
+        return false;
+      }
+      
+      // Validate expiration month (01 - 12)
+      if (!/^(0[1-9]|1[0-2])$/.test(expirationMonth)) {
+        errorDiv.innerHTML = "Expiration Month must be between 01 and 12.";
+        return false;
+      }
+
+      // Validate expiration year (current year or future years)
+      const currentYear = new Date().getFullYear();
+      if (!/^\d{4}$/.test(expirationYear) || expirationYear < currentYear) {
+        errorDiv.innerHTML = "Expiration Year must be the current year or a future year.";
+        return false;
+      }
+
+      // Validate CVV length
+      if (cvv.length !== 3 || !/^\d{3}$/.test(cvv)) {
+        errorDiv.innerHTML = "CVV must be 3 digits.";
+        return false;
+      }
+
+      return true; // Submit form if all validations pass
+    }
+  </script>
+</body>
+</html>
